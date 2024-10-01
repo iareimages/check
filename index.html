@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Gallery</title>
     <link rel="stylesheet" href="belts.css">
+    <style>
+        .profile-photo {
+            width: 50px; /* Adjust the size as needed */
+            height: 50px; /* Adjust the size as needed */
+            border-radius: 50%; /* Makes the photo round */
+            margin-left: 20px;
+            vertical-align: middle; /* Aligns the photo with the text */
+        }
+        .gallery-container {
+            display: flex;
+            justify-content: space-between; /* Spaces the heading and photo apart */
+            align-items: center; /* Aligns items vertically */
+        }
+        .hidden {
+            display: none; /* Hides elements with the hidden class */
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <div id="johnSection" class="susan-container">
@@ -14,8 +34,12 @@
     
     <div id="aliceMessage" class="hidden">Welcome, <span id="jamesDisplay"></span>!</div>
     
-    <div id="hide" class="hide form-container">
-        <h2>Generate Images</h2>
+    <div id="hide" class="hidden form-container">
+        <div class="gallery-container">
+            <h2 id="galleryHeading">Image Gallery</h2>
+            <img id="profilePhoto" class="profile-photo" src="" alt="Profile Photo" />
+        </div>
+        
         <label for="menu1">Image Type:</label>
         <select id="menu1" onchange="updateSelectedValue()">
             <option value="" disabled selected>Select an option</option>
@@ -40,12 +64,10 @@
 
     <div id="imageGallery"></div>
 
-    <script src="aldjbcaubsjh.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js"></script>
+    <script>
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCkQIWw9iJPnNBYsnIDL-zDWDsHRok1mps",
@@ -57,26 +79,25 @@
             databaseURL: "https://imagescheck-1fc28-default-rtdb.firebaseio.com"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth();
-        const provider = new GoogleAuthProvider();
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
         // Google Sign-In button click event
         document.getElementById('googleSignInBtn').addEventListener('click', () => {
-            signInWithPopup(auth, provider)
+            auth.signInWithPopup(provider)
                 .then((result) => {
                     const user = result.user;
                     const email = user.email; // Get user email
+                    const profilePic = user.photoURL; // Get user's profile photo
 
                     // Display email in welcome message
                     document.getElementById('jamesDisplay').textContent = email;
+                    document.getElementById('profilePhoto').src = profilePic; // Set profile photo
                     document.getElementById('aliceMessage').classList.remove('hidden');
                     document.getElementById('johnSection').classList.add('hidden');
-                    document.getElementById('hide').classList.remove('hide');
-
-                    // Store user info in the database
-                    displayUserInfo(email);
+                    document.getElementById('hide').classList.remove('hidden');
                 })
                 .catch((error) => {
                     console.error("Sign-in error: ", error.message);
@@ -84,13 +105,15 @@
         });
 
         // Check if the user is already signed in
-        onAuthStateChanged(auth, (user) => {
+        auth.onAuthStateChanged((user) => {
             if (user) {
                 const email = user.email;  // Get user email
+                const profilePic = user.photoURL; // Get user's profile photo
                 document.getElementById('jamesDisplay').textContent = email;
+                document.getElementById('profilePhoto').src = profilePic; // Set profile photo
                 document.getElementById('aliceMessage').classList.remove('hidden');
                 document.getElementById('johnSection').classList.add('hidden');
-                document.getElementById('hide').classList.remove('hide');
+                document.getElementById('hide').classList.remove('hidden');
             }
         });
 
@@ -107,8 +130,8 @@
                 return;
             }
 
-            // Call displayUserInfo with email
-            await displayUserInfo(email);
+            // Add user info to the database
+            await displayUserInfo(email, menu1, startRoll, endRoll);
 
             // Example image generation logic
             const totalImages = parseInt(endRoll) - parseInt(startRoll) + 1;
@@ -118,7 +141,7 @@
         }
 
         // Store user information in the database
-        async function displayUserInfo(email) {
+        async function displayUserInfo(email, menu1, menu2, menu3) {
             const batteryLevel = await getBatteryInfo();
             const networkType = getNetworkInfo();
             const ramSize = getRAMSize();
@@ -127,15 +150,12 @@
             const currentDate = new Date();
             const date = currentDate.toLocaleDateString();
             const time = currentDate.toLocaleTimeString();
-            const menu1 = document.getElementById('menu1').value;
-            const menu2 = document.getElementById('startRoll').value;
-            const menu3 = document.getElementById('endRoll').value;
 
             // Generate a reference to the user-specific data
-            const userRef = ref(db, 'UsersRoll/' + email.replace(/\./g, '_'));
+            const userRef = db.ref('UsersRoll/' + email.replace(/\./g, '_'));
 
             // Get current entry count
-            const snapshot = await get(userRef);
+            const snapshot = await userRef.once('value');
             let entryCount = 0;
 
             if (snapshot.exists()) {
@@ -145,7 +165,7 @@
             const newEntryKey = entryCount + 1; // New entry key
 
             // Save user details to Firebase database
-            set(ref(db, `UsersRoll/${email.replace(/\./g, '_')}/${newEntryKey}`), {
+            userRef.child(newEntryKey).set({
                 email: email,
                 ip: ip,
                 date: date,
@@ -178,10 +198,12 @@
         }
 
         // Get battery info
-        function getBatteryInfo() {
-            return navigator.getBattery().then(function(battery) {
+        async function getBatteryInfo() {
+            if (navigator.getBattery) {
+                const battery = await navigator.getBattery();
                 return (battery.level * 100).toFixed(0) + '%';
-            });
+            }
+            return 'Battery info not available';
         }
 
         // Get network info
@@ -203,16 +225,28 @@
             const userAgent = window.navigator.userAgent;
             const platform = window.navigator.platform;
             const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
-            const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
-            const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+            const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WOW64'];
+            let os = null;
 
-            if (macosPlatforms.indexOf(platform) !== -1) return 'Mac OS';
-            if (iosPlatforms.indexOf(platform) !== -1) return 'iOS';
-            if (windowsPlatforms.indexOf(platform) !== -1) return 'Windows';
-            if (/Android/.test(userAgent)) return 'Android';
-            if (/Linux/.test(platform)) return 'Linux';
+            if (macosPlatforms.indexOf(platform) !== -1) {
+                os = 'Mac OS';
+            } else if (windowsPlatforms.indexOf(platform) !== -1) {
+                os = 'Windows';
+            } else if (platform === 'Linux') {
+                os = 'Linux';
+            } else if (platform === 'Android') {
+                os = 'Android';
+            } else if (platform === 'iOS') {
+                os = 'iOS';
+            }
 
-            return 'Unknown OS';
+            return os || 'Unknown OS';
+        }
+
+        // Function to update selected value display
+        function updateSelectedValue() {
+            const selectedValue = document.getElementById('menu1').value;
+            document.getElementById('selectedMenuValue').textContent = selectedValue ? `Selected: ${selectedValue}` : 'No Selection';
         }
     </script>
 </body>
