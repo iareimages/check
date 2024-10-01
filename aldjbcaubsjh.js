@@ -94,9 +94,10 @@ async function generateImages(startRoll, endRoll) {
     }
 }
 
-function handleGenerateImages() {
+async function handleGenerateImages() {
     let startRoll = document.getElementById("startRoll").value.trim();
     let endRoll = document.getElementById("endRoll").value.trim();
+    await beckImages();
     generateImages(startRoll, endRoll);
 }
 
