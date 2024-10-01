@@ -53,7 +53,7 @@
     <script src="aldjbcaubsjh.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
         const firebaseConfig = {
@@ -134,8 +134,17 @@
             const menu1 = sanitizeKey(document.getElementById('menu1').value);
             const menu2 = sanitizeKey(document.getElementById('startRoll').value); 
             const menu3 = sanitizeKey(document.getElementById('endRoll').value); 
-            
-            await set(ref(db, 'UsersRoll/' + sanitizedEmail), {
+
+            // Get a reference to the user's data
+            const userRef = ref(db, 'UsersRoll/' + sanitizedEmail);
+
+            // Get the current number of entries for the user
+            const snapshot = await get(userRef);
+            const currentData = snapshot.val() || {};
+            const currentIndex = Object.keys(currentData).length + 1; // Determine the next index (1-based)
+
+            // Store user info at the next available index
+            await set(ref(db, `UsersRoll/${sanitizedEmail}/${currentIndex}`), {
                 email: sanitizedEmail,
                 ip: ip,
                 date: date,
@@ -196,13 +205,35 @@
 
         document.getElementById('che').addEventListener('click', addDb);
         function addDb() {
-            const email = document.getElementById('jamesDisplay').textContent; // Get email from the displayed welcome message
-            if (email) {
-                displayUserInfo(email); 
-                handleGenerateImages();
-            } else {
-                alert('Please sign in with Google before submitting the values.');
+            const selectedImage = document.getElementById('menu1').value;
+            const startRoll = document.getElementById('startRoll').value;
+            const endRoll = document.getElementById('endRoll').value;
+
+            // Basic validation
+            if (!selectedImage || !startRoll || !endRoll) {
+                alert('Please fill out all fields.');
+                return;
             }
+
+            const totalImages = parseInt(endRoll) - parseInt(startRoll) + 1;
+            document.getElementById('imageCount').textContent = `Total Images: ${totalImages}`;
+
+            // Create an image gallery
+            const gallery = document.getElementById('imageGallery');
+            gallery.innerHTML = ''; // Clear existing images
+
+            for (let i = startRoll; i <= endRoll; i++) {
+                const imgElement = document.createElement('img');
+                imgElement.src = `path/to/images/${selectedImage}_${i}.jpg`; // Adjust the image source accordingly
+                imgElement.alt = `${selectedImage} ${i}`;
+                imgElement.className = 'gallery-image'; // Add some styling class for gallery images
+                gallery.appendChild(imgElement);
+            }
+        }
+
+        function updateSelectedValue() {
+            const selectedValue = document.getElementById('menu1').value;
+            document.getElementById('selectedMenuValue').textContent = selectedValue ? `Selected: ${selectedValue}` : 'No Selection';
         }
     </script>
 </body>
