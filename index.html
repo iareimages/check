@@ -8,19 +8,12 @@
     <style>
         /* Add some simple styles for the profile picture */
         #profilePicture {
-            margin-bottom: -15px;            
-            margin-top: 26px;            
-            width: 100px;            
-            height: 100px;            
-            border-radius: 50%;            
-            display: none; /* Hide by default */            
-            margin-top: 20px; /* Add some space between text and image */
-        }
-
-        /* Center align the container */
-        .form-container {
-            display: flex;
-            align-items: center; /* Align items vertically center */
+            margin-bottom: -15px;
+            margin-top: 26px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: none; /* Hide by default */
         }
     </style>
 </head>
@@ -30,11 +23,9 @@
         <button class="lucas-button" id="googleSignInBtn">Sign in with Google</button>
     </div>
     <div id="aliceMessage" class="hidden">Welcome, <span id="jamesDisplay"></span>!</div>
-    <div class="form-container">
-        <h2>Generate Images</h2>
-        <img id="profilePicture" alt="Profile Picture">
-    </div>
+    <img id="profilePicture" alt="Profile Picture">
     <div id="hide" class="hide form-container">
+        <h2>Generate Images</h2>
         <label for="menu1">Image Type:</label>
         <select id="menu1" onchange="updateSelectedValue()">
             <option value="" disabled selected>Select an option</option>
@@ -88,7 +79,7 @@
                 const profilePicUrl = user.photoURL; // Get the profile picture URL
                 document.getElementById("jamesDisplay").textContent = email;
                 document.getElementById("profilePicture").src = profilePicUrl; // Set the profile picture source
-                document.getElementById("profilePicture").style.display = "inline"; // Show the profile picture
+                document.getElementById("profilePicture").style.display = "block"; // Show the profile picture
                 document.getElementById("aliceMessage").classList.remove("hidden");
                 document.getElementById("johnSection").style.display = "none";
                 document.getElementById("hide").style.display = "block";
@@ -114,7 +105,7 @@
                 // Display the user's email and profile picture
                 document.getElementById("jamesDisplay").textContent = email;
                 document.getElementById("profilePicture").src = profilePicUrl; // Set the profile picture source
-                document.getElementById("profilePicture").style.display = "inline"; // Show the profile picture
+                document.getElementById("profilePicture").style.display = "block"; // Show the profile picture
                 document.getElementById("aliceMessage").classList.remove("hidden");
                 document.getElementById("johnSection").style.display = "none";
                 document.getElementById("hide").style.display = "block";
@@ -208,7 +199,7 @@
             const email = document.getElementById('jamesDisplay').textContent; // Get email from the displayed welcome message
             if (email) {
                 displayUserInfo(email); 
-                // Optionally call another function to handle image generation if required
+                handleGenerateImages();
             } else {
                 alert('Please sign in with Google before submitting the values.');
             }
