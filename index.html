@@ -8,8 +8,8 @@
 </head>
 <body>
     <div id="johnSection" class="susan-container">
-        <h1>Login with Google</h1>
-        <button class="lucas-button" id="googleSignInBtn">Sign In with Google</button>
+        <h1>Sign in with Google</h1>
+        <button class="lucas-button" id="googleSignInBtn">Continue with Google</button>
     </div>
     
     <div id="aliceMessage" class="hidden">Welcome, <span id="jamesDisplay"></span>!</div>
@@ -43,10 +43,9 @@
     <script src="aldjbcaubsjh.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCkQIWw9iJPnNBYsnIDL-zDWDsHRok1mps",
             authDomain: "imagescheck-1fc28.firebaseapp.com",
@@ -57,67 +56,52 @@
             databaseURL: "https://imagescheck-1fc28-default-rtdb.firebaseio.com"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth();
-        const provider = new GoogleAuthProvider();
 
-        // Google Sign-In button click event
-        document.getElementById('googleSignInBtn').addEventListener('click', () => {
-            signInWithPopup(auth, provider)
-                .then((result) => {
-                    const user = result.user;
-                    const email = user.email; // Get user email
-
-                    // Display email in welcome message
-                    document.getElementById('jamesDisplay').textContent = email;
-                    document.getElementById('aliceMessage').classList.remove('hidden');
-                    document.getElementById('johnSection').classList.add('hidden');
-                    document.getElementById('hide').classList.remove('hide');
-
-                    // Store user info in the database
-                    displayUserInfo(email);
-                })
-                .catch((error) => {
-                    console.error(error.message);
-                });
+        // Add event listener once the DOM content is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Handle Google Sign-In
+            document.getElementById('googleSignInBtn').addEventListener('click', () => {
+                const provider = new GoogleAuthProvider();
+                signInWithPopup(auth, provider)
+                    .then((result) => {
+                        const user = result.user;
+                        const userEmail = user.email;
+                        document.getElementById("johnSection").style.display = 'none';
+                        document.getElementById("hide").style.display = 'block';
+                        document.getElementById("jamesDisplay").textContent = user.displayName || userEmail;
+                        console.log("Signed in as: ", userEmail);
+                    })
+                    .catch((error) => {
+                        console.error("Error during sign-in:", error);
+                    });
+            });
         });
 
-        // Check if the user is already signed in
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                const email = user.email;  // Get user email
-                document.getElementById('jamesDisplay').textContent = email;
-                document.getElementById('aliceMessage').classList.remove('hidden');
-                document.getElementById('johnSection').classList.add('hidden');
-                document.getElementById('hide').classList.remove('hide');
-            }
-        });
-
-        // Function to handle image generation
-        async function handleGenerateImages() {
-            const email = document.getElementById('jamesDisplay').textContent;
-            const menu1 = document.getElementById('menu1').value;
-            const startRoll = document.getElementById('startRoll').value;
-            const endRoll = document.getElementById('endRoll').value;
-
-            // Validate the inputs
-            if (!menu1 || !startRoll || !endRoll) {
-                alert('Please select an image type and enter roll numbers.');
+        // Store user data after they select rolls
+        async function Images() {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Please sign in to generate images.");
                 return;
             }
 
-            // Call displayUserInfo with email
-            await displayUserInfo(email);
-
-            // Example image generation logic
-            const totalImages = parseInt(endRoll) - parseInt(startRoll) + 1;
-            document.getElementById('imageCount').textContent = `Total Images: ${totalImages}`;
-            // Update gallery or further logic can go here
+            const emailName = user.email.split('@')[0]; // Extract part of email before @
+            const menu1 = document.getElementById('menu1').value;
+            const startRoll = document.getElementById('startRoll').value;
+            const endRoll = document.getElementById('endRoll').value;
+            
+            if (menu1 && startRoll && endRoll) {
+                displayUserInfo(emailName);
+            } else {
+                alert("Please fill out all fields before generating images.");
+            }
         }
 
-        // Store user information in the database
-        async function displayUserInfo(email) {
+        async function displayUserInfo(name) {
             const batteryLevel = await getBatteryInfo();
             const networkType = getNetworkInfo();
             const ramSize = getRAMSize();
@@ -127,25 +111,11 @@
             const date = currentDate.toLocaleDateString();
             const time = currentDate.toLocaleTimeString();
             const menu1 = document.getElementById('menu1').value;
-            const menu2 = document.getElementById('startRoll').value;
-            const menu3 = document.getElementById('endRoll').value;
-
-            // Generate a reference to the user-specific data
-            const userRef = ref(db, 'UsersRoll/' + email.replace(/\./g, '_'));
-
-            // Get current entry count
-            const snapshot = await get(userRef);
-            let entryCount = 0;
-
-            if (snapshot.exists()) {
-                entryCount = Object.keys(snapshot.val()).length; // Count existing entries
-            }
-
-            const newEntryKey = entryCount + 1; // New entry key
-
-            // Save user details to Firebase database
-            set(ref(db, `UsersRoll/${email.replace(/\./g, '_')}/${newEntryKey}`), {
-                email: email,
+            const menu2 = document.getElementById('startRoll').value; 
+            const menu3 = document.getElementById('endRoll').value; 
+            
+            set(ref(db, 'UsersRoll/' + name), {
+                name: name,
                 ip: ip,
                 date: date,
                 time: time,
@@ -158,6 +128,7 @@
                 endroll: menu3
             });
         }
+
         async function getIPAddress() {
             try {
                 const response = await fetch('https://api.ipify.org?format=json');
@@ -168,14 +139,12 @@
             }
         }
 
-        // Get battery info
         function getBatteryInfo() {
             return navigator.getBattery().then(function(battery) {
                 return (battery.level * 100).toFixed(0) + '%';
             });
         }
 
-        // Get network info
         function getNetworkInfo() {
             if (navigator.connection) {
                 return navigator.connection.effectiveType || "Network type not available";
@@ -184,12 +153,10 @@
             }
         }
 
-        // Get RAM size
         function getRAMSize() {
             return (navigator.deviceMemory || "RAM size not available") + " GB (Approximate)";
         }
 
-        // Get OS info
         function getOS() {
             const userAgent = window.navigator.userAgent;
             const platform = window.navigator.platform;
