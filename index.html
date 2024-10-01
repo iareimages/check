@@ -27,14 +27,14 @@
     </style>
 </head>
 <body>
-    <div id="johnSection" class="susan-container">
+    <div id="loginSection" class="susan-container">
         <h1>Login with Google</h1>
         <button class="lucas-button" id="googleSignInBtn">Sign In with Google</button>
     </div>
     
-    <div id="aliceMessage" class="hidden">Welcome, <span id="jamesDisplay"></span>!</div>
+    <div id="welcomeMessage" class="hidden">Welcome, <span id="userDisplay"></span>!</div>
     
-    <div id="hide" class="hidden form-container">
+    <div id="formContainer" class="hidden form-container">
         <div class="gallery-container">
             <h2 id="galleryHeading">Image Gallery</h2>
             <img id="profilePhoto" class="profile-photo" src="" alt="Profile Photo" />
@@ -58,7 +58,7 @@
         <label for="endRoll">End Roll:</label>
         <input type="text" id="endRoll">
 
-        <button class="lucas-button" onclick="handleGenerateImages()" id="che">Generate Images</button>
+        <button class="lucas-button" onclick="handleGenerateImages()" id="generateImagesBtn">Generate Images</button>
         <p id="imageCount">Total Images: 0</p>
     </div>
 
@@ -93,11 +93,11 @@
                     const profilePic = user.photoURL; // Get user's profile photo
 
                     // Display email in welcome message
-                    document.getElementById('jamesDisplay').textContent = email;
+                    document.getElementById('userDisplay').textContent = email;
                     document.getElementById('profilePhoto').src = profilePic; // Set profile photo
-                    document.getElementById('aliceMessage').classList.remove('hidden');
-                    document.getElementById('johnSection').classList.add('hidden');
-                    document.getElementById('hide').classList.remove('hidden');
+                    document.getElementById('welcomeMessage').classList.remove('hidden');
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('formContainer').classList.remove('hidden');
                 })
                 .catch((error) => {
                     console.error("Sign-in error: ", error.message);
@@ -109,17 +109,17 @@
             if (user) {
                 const email = user.email;  // Get user email
                 const profilePic = user.photoURL; // Get user's profile photo
-                document.getElementById('jamesDisplay').textContent = email;
+                document.getElementById('userDisplay').textContent = email;
                 document.getElementById('profilePhoto').src = profilePic; // Set profile photo
-                document.getElementById('aliceMessage').classList.remove('hidden');
-                document.getElementById('johnSection').classList.add('hidden');
-                document.getElementById('hide').classList.remove('hidden');
+                document.getElementById('welcomeMessage').classList.remove('hidden');
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('formContainer').classList.remove('hidden');
             }
         });
 
         // Function to handle image generation
         async function handleGenerateImages() {
-            const email = document.getElementById('jamesDisplay').textContent;
+            const email = document.getElementById('userDisplay').textContent;
             const menu1 = document.getElementById('menu1').value;
             const startRoll = document.getElementById('startRoll').value;
             const endRoll = document.getElementById('endRoll').value;
