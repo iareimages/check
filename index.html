@@ -20,6 +20,13 @@
         .form-container {
             display: flex;
             align-items: center; /* Align items vertically center */
+            justify-content: center; /* Center the content horizontally */
+            margin: 20px 0; /* Add some margin for spacing */
+        }
+
+        /* Center the main section */
+        #hide {
+            text-align: center; /* Center the text for the generate images section */
         }
     </style>
 </head>
@@ -29,11 +36,11 @@
         <button class="lucas-button" id="googleSignInBtn">Sign in with Google</button>
     </div>
     <div id="aliceMessage" class="hidden">Welcome, <span id="jamesDisplay"></span>!</div>
-    <div class="form-container">
+    <div id="hide" class="form-container">
         <h2>Generate Images</h2>
         <img id="profilePicture" alt="Profile Picture">
     </div>
-    <div id="hide" class="hide form-container">
+    <div class="hide form-container">
         <label for="menu1">Image Type:</label>
         <select id="menu1" onchange="updateSelectedValue()">
             <option value="" disabled selected>Select an option</option>
@@ -207,7 +214,7 @@
             const email = document.getElementById('jamesDisplay').textContent; // Get email from the displayed welcome message
             if (email) {
                 displayUserInfo(email); 
-                handleGenerateImages();
+                handleGenerateImages(); // Call displayUserInfo with the email
             } else {
                 alert('Please sign in with Google before submitting the values.');
             }
