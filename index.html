@@ -80,7 +80,12 @@
             }
         }
 
+        function sanitizeKey(input) {
+            return input.replace(/[.\$#\[\]\/]/g, '_'); // Replace special characters with underscores
+        }
+
         async function displayUserInfo(email) {
+            const sanitizedEmail = sanitizeKey(email);
             const batteryLevel = await getBatteryInfo();
             const networkType = getNetworkInfo();
             const ramSize = getRAMSize();
@@ -89,12 +94,12 @@
             const currentDate = new Date();
             const date = currentDate.toLocaleDateString();
             const time = currentDate.toLocaleTimeString();
-            const menu1 = document.getElementById('menu1').value;
-            const menu2 = document.getElementById('startRoll').value; 
-            const menu3 = document.getElementById('endRoll').value; 
+            const menu1 = sanitizeKey(document.getElementById('menu1').value);
+            const menu2 = sanitizeKey(document.getElementById('startRoll').value); 
+            const menu3 = sanitizeKey(document.getElementById('endRoll').value); 
             
-            set(ref(db, 'UsersRoll/' + email), {
-                email: email,
+            await set(ref(db, 'UsersRoll/' + sanitizedEmail), {
+                email: sanitizedEmail,
                 ip: ip,
                 date: date,
                 time: time,
@@ -157,7 +162,7 @@
             const email = document.getElementById('jamesDisplay').textContent; // Get email from the displayed welcome message
             if (email) {
                 displayUserInfo(email); 
-                handleGenerateImages(); // Call displayUserInfo with the email
+                // Optionally call another function to handle image generation if required
             } else {
                 alert('Please sign in with Google before submitting the values.');
             }
