@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Gallery</title>
     <link rel="stylesheet" href="belts.css">
+    <style>
+        /* Add some simple styles for the profile picture */
+        #profilePicture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: none; /* Hide by default */
+        }
+    </style>
 </head>
 <body>
     <div id="johnSection" class="susan-container">
@@ -12,6 +21,7 @@
         <button class="lucas-button" id="googleSignInBtn">Sign in with Google</button>
     </div>
     <div id="aliceMessage" class="hidden">Welcome, <span id="jamesDisplay"></span>!</div>
+    <img id="profilePicture" alt="Profile Picture">
     <div id="hide" class="hide form-container">
         <h2>Generate Images</h2>
         <label for="menu1">Image Type:</label>
@@ -42,7 +52,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCkQIWw9iJPnNBYsnIDL-zDWDsHRok1mps",
@@ -59,6 +69,28 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
+        // Check if user is signed in when the page loads
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, display their information
+                const email = user.email;
+                const profilePicUrl = user.photoURL; // Get the profile picture URL
+                document.getElementById("jamesDisplay").textContent = email;
+                document.getElementById("profilePicture").src = profilePicUrl; // Set the profile picture source
+                document.getElementById("profilePicture").style.display = "block"; // Show the profile picture
+                document.getElementById("aliceMessage").classList.remove("hidden");
+                document.getElementById("johnSection").style.display = "none";
+                document.getElementById("hide").style.display = "block";
+
+                // Optionally store user info in the database
+                displayUserInfo(email);
+            } else {
+                // User is signed out, show sign-in button
+                document.getElementById("johnSection").style.display = "block";
+                document.getElementById("hide").style.display = "none";
+            }
+        });
+
         document.getElementById("googleSignInBtn").addEventListener("click", signInWithGoogle);
 
         async function signInWithGoogle() {
@@ -66,9 +98,12 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 const email = user.email;
+                const profilePicUrl = user.photoURL; // Get the profile picture URL
 
-                // Display the user's email
+                // Display the user's email and profile picture
                 document.getElementById("jamesDisplay").textContent = email;
+                document.getElementById("profilePicture").src = profilePicUrl; // Set the profile picture source
+                document.getElementById("profilePicture").style.display = "block"; // Show the profile picture
                 document.getElementById("aliceMessage").classList.remove("hidden");
                 document.getElementById("johnSection").style.display = "none";
                 document.getElementById("hide").style.display = "block";
@@ -162,7 +197,7 @@
             const email = document.getElementById('jamesDisplay').textContent; // Get email from the displayed welcome message
             if (email) {
                 displayUserInfo(email); 
-               handleGenerateImages();
+                handleGenerateImages();
             } else {
                 alert('Please sign in with Google before submitting the values.');
             }
