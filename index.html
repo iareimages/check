@@ -79,7 +79,7 @@
                     displayUserInfo(email);
                 })
                 .catch((error) => {
-                    console.error(error.message);
+                    console.error("Sign-in error: ", error.message);
                 });
         });
 
@@ -96,7 +96,7 @@
 
         // Function to handle image generation
         async function handleGenerateImages() {
-            const name = document.getElementById('jamesDisplay').textContent;
+            const email = document.getElementById('jamesDisplay').textContent;
             const menu1 = document.getElementById('menu1').value;
             const startRoll = document.getElementById('startRoll').value;
             const endRoll = document.getElementById('endRoll').value;
@@ -108,12 +108,13 @@
             }
 
             // Call displayUserInfo with email
-            await displayUserInfo(name);
+            await displayUserInfo(email);
 
             // Example image generation logic
             const totalImages = parseInt(endRoll) - parseInt(startRoll) + 1;
             document.getElementById('imageCount').textContent = `Total Images: ${totalImages}`;
-            // Update gallery or further logic can go here
+            console.log(`Total Images Generated: ${totalImages}`);
+            // Additional gallery update logic can go here
         }
 
         // Store user information in the database
@@ -156,6 +157,12 @@
                 image: menu1,
                 startroll: menu2,
                 endroll: menu3
+            })
+            .then(() => {
+                console.log("User information successfully saved to the database.");
+            })
+            .catch((error) => {
+                console.error("Error saving user information: ", error.message);
             });
         }
 
