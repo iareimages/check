@@ -88,7 +88,6 @@
                 document.getElementById("hide").style.display = "block";
 
                 // Optionally store user info in the database
-                displayUserInfo(email);
             } else {
                 // User is signed out, show sign-in button
                 document.getElementById("johnSection").style.display = "block";
@@ -138,7 +137,7 @@
             const menu2 = sanitizeKey(document.getElementById('startRoll').value); 
             const menu3 = sanitizeKey(document.getElementById('endRoll').value); 
             const nextIndex = await getNextIndex(sanitizedEmail);
-            await set(ref(db, 'Mallareddy/UsersRoll/' + sanitizedEmail + '/' + nextIndex), {
+            await set(ref(db, 'MallaUsersRoll/' + sanitizedEmail + '/' + nextIndex), {
                 email: sanitizedEmail,
                 ip: ip,
                 date: date,
@@ -155,7 +154,7 @@
 
         async function getNextIndex(email) {
             const dbRef = ref(db);
-            const snapshot = await get(child(dbRef, 'Mallareddy/UsersRoll/' + email));
+            const snapshot = await get(child(dbRef, 'MallaUsersRoll/' + email));
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 return Object.keys(data).length + 1; // Next index is the number of existing entries + 1
