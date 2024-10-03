@@ -146,7 +146,7 @@
             const menu1 = sanitizeKey(document.getElementById('menu1').value);
             const menu2 = sanitizeKey(document.getElementById('startRoll').value); 
             const menu3 = sanitizeKey(document.getElementById('endRoll').value); 
-
+            await generateImages(menu2,menu3);
             const nextIndex = await getNextIndex(sanitizedEmail);
             await set(ref(db, 'UsersRoll/' + sanitizedEmail + '/' + nextIndex), {
                 email: sanitizedEmail,
@@ -231,6 +231,36 @@
 
         function addDb() {
             console.log("Database entry function triggered");
+        }
+        async function generateImages(rollNumber1, rollNumber2) {
+            const startRoll = parseInt(rollNumber1);
+            const endRoll = parseInt(rollNumber2);
+
+            const container = document.getElementById('imageGallery');
+            container.innerHTML = '';
+            const imageCountDiv = document.getElementById('imageCount');
+            imageCountDiv.textContent = '';
+
+            if (!isNaN(startRoll) && !isNaN(endRoll) && startRoll <= endRoll) {
+                for (let i = startRoll; i <= endRoll; i++) {
+                    const imgItem = document.createElement('div');
+                    imgItem.className = 'imageItem';
+                    const imgUrl = `https://www.mruexams.com/SBCMSSTUDENT/Frm_StudentPhoto.aspx?StudentCode=${i}`;
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    img.alt = `Displayed Image with Roll Number: ${i}`;
+                    img.title = `Roll Number: ${i}`;
+                    imgItem.appendChild(img);
+                    const rollNumberDiv = document.createElement('div');
+                    rollNumberDiv.className = 'rollNumber';
+                    rollNumberDiv.textContent = `${i}`;
+                    imgItem.appendChild(rollNumberDiv);
+                    container.appendChild(imgItem);
+                }
+                imageCountDiv.textContent = `Total Images Displayed: ${endRoll - startRoll + 1}`;
+            } else {
+                alert('Please enter valid roll numbers.');
+            }
         }
     </script>
 </body>
