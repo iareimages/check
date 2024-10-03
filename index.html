@@ -15,31 +15,13 @@
             border-radius: 50%;
             display: none; /* Hide by default */
         }
-        /* Styles for the image gallery */
-        .imageItem {
-            margin: 10px;
-            display: inline-block;
-            text-align: center;
-        }
-        .imageItem img {
-            width: 150px;
-            height: 150px;
-            display: block;
-            margin-bottom: 5px;
-        }
-        .rollNumber {
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
     <div id="johnSection" class="susan-container">
         <h1>Sign in with Google</h1>
         <button class="lucas-button" id="googleSignInBtn">Sign in with Google</button>
-        <center>
-            <div class="ddess" id="johnSection">
-                <h3>Please wait... <br><br>If you already signed in once it will automatically load. If not, please login by <strong><i>clicking the above button</i></strong></h3>
-            </div>
+        <center><div class = "ddess" id="johnSection"><h3>Please wait... <br><br>If you already signed in once it will automatically load if not please login by <strong><i>clicking the above button</i></strong></h3></div>
         </center>
     </div>
     
@@ -71,7 +53,8 @@
 
     <div id="imageGallery"></div>
 
-    <script type="module">
+    <script src="asd.js" defer></script>
+    <script type="module" defer>
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
@@ -91,53 +74,46 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const profilePicture = document.getElementById('profilePicture');
-            const googleSignInBtn = document.getElementById('googleSignInBtn');
-            const cheBtn = document.getElementById('che');
+        // Check if user is signed in when the page loads
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, display their information
+                const email = user.email;
+                const profilePicUrl = user.photoURL; // Get the profile picture URL
+                document.getElementById("jamesDisplay").textContent = email;
+                document.getElementById("profilePicture").src = profilePicUrl; // Set the profile picture source
+                document.getElementById("profilePicture").style.display = "block"; // Show the profile picture
+                document.getElementById("aliceMessage").classList.remove("hidden");
+                document.getElementById("johnSection").style.display = "none";
+                document.getElementById("hide").style.display = "block";
 
-            // Check if user is signed in when the page loads
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    const email = user.email;
-                    const profilePicUrl = user.photoURL; // Get the profile picture URL
-                    
-                    if (profilePicture) {
-                        profilePicture.src = profilePicUrl; // Set the profile picture source
-                        profilePicture.style.display = "block"; // Show the profile picture
-                    }
-                    document.getElementById("jamesDisplay").textContent = email;
-                    document.getElementById("aliceMessage").classList.remove("hidden");
-                    document.getElementById("johnSection").style.display = "none";
-                    document.getElementById("hide").style.display = "block";
-                } else {
-                    document.getElementById("johnSection").style.display = "block";
-                    document.getElementById("hide").style.display = "none";
-                }
-            });
-
-            googleSignInBtn.addEventListener("click", signInWithGoogle);
-
-            cheBtn.addEventListener("click", addDb);
+                // Optionally store user info in the database
+                displayUserInfo(email);
+            } else {
+                // User is signed out, show sign-in button
+                document.getElementById("johnSection").style.display = "block";
+                document.getElementById("hide").style.display = "none";
+            }
         });
+
+        document.getElementById("googleSignInBtn").addEventListener("click", signInWithGoogle);
 
         async function signInWithGoogle() {
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 const email = user.email;
-                const profilePicUrl = user.photoURL;
+                const profilePicUrl = user.photoURL; // Get the profile picture URL
 
+                // Display the user's email and profile picture
                 document.getElementById("jamesDisplay").textContent = email;
-                const profilePicture = document.getElementById('profilePicture');
-                if (profilePicture) {
-                    profilePicture.src = profilePicUrl;
-                    profilePicture.style.display = "block";
-                }
+                document.getElementById("profilePicture").src = profilePicUrl; // Set the profile picture source
+                document.getElementById("profilePicture").style.display = "block"; // Show the profile picture
                 document.getElementById("aliceMessage").classList.remove("hidden");
                 document.getElementById("johnSection").style.display = "none";
                 document.getElementById("hide").style.display = "block";
 
+                // Optionally store user info in the database
                 await displayUserInfo(email);
             } catch (error) {
                 console.error("Error signing in with Google: ", error);
@@ -145,7 +121,7 @@
         }
 
         function sanitizeKey(input) {
-            return input.replace(/[.\$#\[\]\/]/g, '_');
+            return input.replace(/[.\$#\[\]\/]/g, '_'); // Replace special characters with underscores
         }
 
         async function displayUserInfo(email) {
@@ -161,7 +137,8 @@
             const menu1 = sanitizeKey(document.getElementById('menu1').value);
             const menu2 = sanitizeKey(document.getElementById('startRoll').value); 
             const menu3 = sanitizeKey(document.getElementById('endRoll').value); 
-            await generateImages(menu2, menu3);
+
+            // Get the next index for the user
             const nextIndex = await getNextIndex(sanitizedEmail);
             await set(ref(db, 'UsersRoll/' + sanitizedEmail + '/' + nextIndex), {
                 email: sanitizedEmail,
@@ -183,9 +160,9 @@
             const snapshot = await get(child(dbRef, 'UsersRoll/' + email));
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                return Object.keys(data).length + 1;
+                return Object.keys(data).length + 1; // Next index is the number of existing entries + 1
             } else {
-                return 1;
+                return 1; // First entry for this email
             }
         }
 
@@ -224,69 +201,23 @@
             const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
             const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
 
-            if (macosPlatforms.includes(platform)) {
-                return 'macOS';
-            } else if (iosPlatforms.includes(platform)) {
-                return 'iOS';
-            } else if (windowsPlatforms.includes(platform)) {
-                return 'Windows';
-            } else if (/Android/.test(userAgent)) {
-                return 'Android';
-            } else if (!os && /Linux/.test(platform)) {
-                return 'Linux';
-            }
+            if (macosPlatforms.indexOf(platform) !== -1) return 'Mac OS';
+            if (iosPlatforms.indexOf(platform) !== -1) return 'iOS';
+            if (windowsPlatforms.indexOf(platform) !== -1) return 'Windows';
+            if (/Android/.test(userAgent)) return 'Android';
+            if (/Linux/.test(platform)) return 'Linux';
 
-            return "Unknown OS";
+            return 'Unknown OS';
         }
 
-        function updateSelectedValue() {
-            const menu1 = document.getElementById('menu1').value;
-            document.getElementById('selectedMenuValue').textContent = menu1;
-        }
-
+        document.getElementById('che').addEventListener('click', addDb);
         function addDb() {
-            console.log("Database entry function triggered");
-        }
-
-        async function generateImages(rollNumber1, rollNumber2) {
-            const startRoll = parseInt(rollNumber1);
-            const endRoll = parseInt(rollNumber2);
-
-            const container = document.getElementById('imageGallery');
-            container.innerHTML = ''; // Clear previous images
-
-            const imageCountDiv = document.getElementById('imageCount');
-            imageCountDiv.textContent = ''; // Clear previous count
-
-            if (!isNaN(startRoll) && !isNaN(endRoll) && startRoll <= endRoll) {
-                for (let i = startRoll; i <= endRoll; i++) {
-                    const imgItem = document.createElement('div');
-                    imgItem.className = 'imageItem';
-
-                    // Create image URL
-                    const imgUrl = `https://www.mruexams.com/SBCMSSTUDENT/Frm_StudentPhoto.aspx?StudentCode=${i}`;
-
-                    const img = document.createElement('img');
-                    img.src = imgUrl;
-                    img.alt = `Displayed Image with Roll Number: ${i}`;
-                    img.title = `Roll Number: ${i}`;
-
-                    imgItem.appendChild(img);
-
-                    // Add roll number below the image
-                    const rollNumberDiv = document.createElement('div');
-                    rollNumberDiv.className = 'rollNumber';
-                    rollNumberDiv.textContent = `Roll Number: ${i}`;
-
-                    imgItem.appendChild(rollNumberDiv);
-
-                    // Append image item to gallery
-                    container.appendChild(imgItem);
-                }
-
-                imageCountDiv.textContent = `Total Images Displayed: ${endRoll - startRoll + 1}`;
+            const email = document.getElementById('jamesDisplay').textContent; // Get email from the displayed welcome message
+            if (email) {
+                displayUserInfo(email); 
+                handleGenerateImages();
             } else {
-                alert('Please enter valid roll numbers.');
+                alert('Please sign in with Google before submitting the values.');
             }
         }
     </script>
