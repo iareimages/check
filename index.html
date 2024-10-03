@@ -6,14 +6,13 @@
     <title>Image Gallery</title>
     <link rel="stylesheet" href="belts.css">
     <style>
-        /* Add some simple styles for the profile picture */
         #profilePicture {
             margin-bottom: -15px;
             margin-top: 26px;
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            display: none; /* Hide by default */
+            display: none; 
         }
     </style>
 </head>
@@ -55,9 +54,9 @@
 
     <script src="asd.js" defer></script>
     <script type="module" defer>
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCkQIWw9iJPnNBYsnIDL-zDWDsHRok1mps",
@@ -73,11 +72,8 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
-
-        // Check if user is signed in when the page loads
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in, display their information
                 const email = user.email;
                 const profilePicUrl = user.photoURL; // Get the profile picture URL
                 document.getElementById("jamesDisplay").textContent = email;
@@ -87,7 +83,6 @@
                 document.getElementById("johnSection").style.display = "none";
                 document.getElementById("hide").style.display = "block";
 
-                // Optionally store user info in the database
                 displayUserInfo(email);
             } else {
                 // User is signed out, show sign-in button
