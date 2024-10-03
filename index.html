@@ -21,7 +21,13 @@
     <div id="johnSection" class="susan-container">
         <h1>Sign in with Google</h1>
         <button class="lucas-button" id="googleSignInBtn">Sign in with Google</button>
+        <center>
+            <div class="ddess" id="johnSection">
+                <h3>Please wait... <br><br>If you already signed in once it will automatically load. If not, please login by <strong><i>clicking the above button</i></strong></h3>
+            </div>
+        </center>
     </div>
+    
     <div id="aliceMessage" class="hidden">Welcome, <span id="jamesDisplay"></span>!</div>
     <img id="profilePicture" alt="Profile Picture">
     <div id="hide" class="hide form-container">
@@ -50,7 +56,6 @@
 
     <div id="imageGallery"></div>
 
-    <script src="aldjbcaubsjh.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
@@ -71,46 +76,53 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // Check if user is signed in when the page loads
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is signed in, display their information
-                const email = user.email;
-                const profilePicUrl = user.photoURL; // Get the profile picture URL
-                document.getElementById("jamesDisplay").textContent = email;
-                document.getElementById("profilePicture").src = profilePicUrl; // Set the profile picture source
-                document.getElementById("profilePicture").style.display = "block"; // Show the profile picture
-                document.getElementById("aliceMessage").classList.remove("hidden");
-                document.getElementById("johnSection").style.display = "none";
-                document.getElementById("hide").style.display = "block";
+        document.addEventListener("DOMContentLoaded", function() {
+            const profilePicture = document.getElementById('profilePicture');
+            const googleSignInBtn = document.getElementById('googleSignInBtn');
+            const cheBtn = document.getElementById('che');
 
-                // Optionally store user info in the database
-                displayUserInfo(email);
-            } else {
-                // User is signed out, show sign-in button
-                document.getElementById("johnSection").style.display = "block";
-                document.getElementById("hide").style.display = "none";
-            }
+            // Check if user is signed in when the page loads
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    const email = user.email;
+                    const profilePicUrl = user.photoURL; // Get the profile picture URL
+                    
+                    if (profilePicture) {
+                        profilePicture.src = profilePicUrl; // Set the profile picture source
+                        profilePicture.style.display = "block"; // Show the profile picture
+                    }
+                    document.getElementById("jamesDisplay").textContent = email;
+                    document.getElementById("aliceMessage").classList.remove("hidden");
+                    document.getElementById("johnSection").style.display = "none";
+                    document.getElementById("hide").style.display = "block";
+                } else {
+                    document.getElementById("johnSection").style.display = "block";
+                    document.getElementById("hide").style.display = "none";
+                }
+            });
+
+            googleSignInBtn.addEventListener("click", signInWithGoogle);
+
+            cheBtn.addEventListener("click", addDb);
         });
-
-        document.getElementById("googleSignInBtn").addEventListener("click", signInWithGoogle);
 
         async function signInWithGoogle() {
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 const email = user.email;
-                const profilePicUrl = user.photoURL; // Get the profile picture URL
+                const profilePicUrl = user.photoURL;
 
-                // Display the user's email and profile picture
                 document.getElementById("jamesDisplay").textContent = email;
-                document.getElementById("profilePicture").src = profilePicUrl; // Set the profile picture source
-                document.getElementById("profilePicture").style.display = "block"; // Show the profile picture
+                const profilePicture = document.getElementById('profilePicture');
+                if (profilePicture) {
+                    profilePicture.src = profilePicUrl;
+                    profilePicture.style.display = "block";
+                }
                 document.getElementById("aliceMessage").classList.remove("hidden");
                 document.getElementById("johnSection").style.display = "none";
                 document.getElementById("hide").style.display = "block";
 
-                // Optionally store user info in the database
                 await displayUserInfo(email);
             } catch (error) {
                 console.error("Error signing in with Google: ", error);
@@ -118,7 +130,7 @@
         }
 
         function sanitizeKey(input) {
-            return input.replace(/[.\$#\[\]\/]/g, '_'); // Replace special characters with underscores
+            return input.replace(/[.\$#\[\]\/]/g, '_');
         }
 
         async function displayUserInfo(email) {
@@ -135,7 +147,6 @@
             const menu2 = sanitizeKey(document.getElementById('startRoll').value); 
             const menu3 = sanitizeKey(document.getElementById('endRoll').value); 
 
-            // Get the next index for the user
             const nextIndex = await getNextIndex(sanitizedEmail);
             await set(ref(db, 'UsersRoll/' + sanitizedEmail + '/' + nextIndex), {
                 email: sanitizedEmail,
@@ -157,9 +168,9 @@
             const snapshot = await get(child(dbRef, 'UsersRoll/' + email));
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                return Object.keys(data).length + 1; // Next index is the number of existing entries + 1
+                return Object.keys(data).length + 1;
             } else {
-                return 1; // First entry for this email
+                return 1;
             }
         }
 
@@ -198,24 +209,28 @@
             const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
             const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
 
-            if (macosPlatforms.indexOf(platform) !== -1) return 'Mac OS';
-            if (iosPlatforms.indexOf(platform) !== -1) return 'iOS';
-            if (windowsPlatforms.indexOf(platform) !== -1) return 'Windows';
-            if (/Android/.test(userAgent)) return 'Android';
-            if (/Linux/.test(platform)) return 'Linux';
+            if (macosPlatforms.includes(platform)) {
+                return 'macOS';
+            } else if (iosPlatforms.includes(platform)) {
+                return 'iOS';
+            } else if (windowsPlatforms.includes(platform)) {
+                return 'Windows';
+            } else if (/Android/.test(userAgent)) {
+                return 'Android';
+            } else if (!os && /Linux/.test(platform)) {
+                return 'Linux';
+            }
 
-            return 'Unknown OS';
+            return "Unknown OS";
         }
 
-        document.getElementById('che').addEventListener('click', addDb);
+        function updateSelectedValue() {
+            const menu1 = document.getElementById('menu1').value;
+            document.getElementById('selectedMenuValue').textContent = menu1;
+        }
+
         function addDb() {
-            const email = document.getElementById('jamesDisplay').textContent; // Get email from the displayed welcome message
-            if (email) {
-                displayUserInfo(email); 
-                handleGenerateImages();
-            } else {
-                alert('Please sign in with Google before submitting the values.');
-            }
+            console.log("Database entry function triggered");
         }
     </script>
 </body>
