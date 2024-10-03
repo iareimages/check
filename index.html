@@ -32,15 +32,15 @@
         <label for="menu1">Image Type:</label>
         <select id="menu1" onchange="updateSelectedValue()">
             <option value="" disabled selected>Select an option</option>
-            <option value="SSC Certificate">SSC Certificate</option>
-            <option value="Inter Certificate">Inter Certificate</option>
-            <option value="Aadhar">Aadhar</option>
-            <option value="Caste Certificate">Caste Certificate</option>
-            <option value="Income Certificate">Income Certificate</option>
-            <option value="Photo">Photo</option>
+            <option value="CSE">CSE</option>
+            <option value="CSE (AIML)">CSE (AIML)</option>
+            <option value="IOT">IOT</option>
+            <option value="IT">IT</option>
+            <option value="CSE (DS)">CSE (DS)</option>
+            <option value="CSE (CS)">CSE (CS)</option>
         </select>
         <p id="selectedMenuValue">No Selection</p>
-
+        <p id="rollNumberzz"></p>
         <label for="startRoll">Start Roll:</label>
         <input type="text" id="startRoll">
 
@@ -53,8 +53,8 @@
 
     <div id="imageGallery"></div>
 
-    <script src="asd.js"></script>
-    <script type="module">
+    <script src="besA.js" defer></script>
+    <script type="module" defer>
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
