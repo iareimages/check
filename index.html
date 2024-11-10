@@ -222,7 +222,7 @@
             }
         }
 
-        async function clicked(rollNumber) {
+  async function clicked(rollNumber) {
     const user = auth.currentUser;  // Use the auth object for currentUser
     if (user) {
         const email = user.email;
@@ -234,7 +234,8 @@
             return;
         }
 
-        const clickedPath = ref(db, 'UsersRoll/' + sanitizedEmail + '/' + index + '/clicked');  // Path to the 'clicked' node
+        // Use the correct path for UsersRoll
+        const clickedPath = ref(db, 'UsersRoll/' + sanitizedEmail + '/' + index + '/clicked');  // Path to the 'clicked' node under UsersRoll
 
         // Get the current list of roll numbers
         const snapshot = await get(clickedPath);
@@ -258,10 +259,6 @@
         console.error("User not signed in. Please sign in first.");
     }
 }
-
-
-
-
 
 window.clicked = clicked;
     </script>
