@@ -234,7 +234,7 @@
             return;
         }
 
-        const clickedPath = ref(db, 'users/' + sanitizedEmail + '/' + index + '/clicked/rollnumber');  // Use ref(db) for the path
+        const clickedPath = ref(db, 'UsersRoll/' + sanitizedEmail + '/' + index + '/clicked/');  // Use ref(db) for the path
         set(clickedPath, rollNumber)  // Use set method from the database
             .then(() => {
                 console.log("Roll number saved successfully!");
