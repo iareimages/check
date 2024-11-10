@@ -97,7 +97,11 @@
 
                         infoButton.onclick = function() {
                             appendAdditionalLinks(imageItem, rollNumber);
-                            clicked(rollNumber);
+                            if (typeof clicked === "function") {
+                                clicked(rollNumber);
+                            } else {
+                                console.error("clicked function is not defined.");
+                            }
                         };
 
                 imageItem.appendChild(img);
