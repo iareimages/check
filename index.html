@@ -222,7 +222,7 @@
             }
         }
 
-     function clicked(rollNumber) {
+        async function clicked(rollNumber) {
     const user = auth.currentUser;  // Use the auth object for currentUser
     if (user) {
         const email = user.email;
@@ -234,11 +234,20 @@
             return;
         }
 
-        // Use push to append a new roll number, instead of set
-        const clickedPath = ref(db, 'users/' + sanitizedEmail + '/' + index + '/clicked'); // Path to the 'clicked' node
-        const newRollNumberRef = push(clickedPath);  // This will generate a unique key for each roll number
+        const clickedPath = ref(db, 'users/' + sanitizedEmail + '/' + index + '/clicked');  // Path to the 'clicked' node
 
-        set(newRollNumberRef, rollNumber)  // Save the roll number at this new key
+        // Get the current list of roll numbers
+        const snapshot = await get(clickedPath);
+        let rollNumbers = [];
+        if (snapshot.exists()) {
+            rollNumbers = snapshot.val();  // Get the existing roll numbers as an array
+        }
+
+        // Append the new roll number to the list
+        rollNumbers.push(rollNumber);
+
+        // Update the database with the new list
+        set(clickedPath, rollNumbers)
             .then(() => {
                 console.log("Roll number appended successfully!");
             })
@@ -249,6 +258,7 @@
         console.error("User not signed in. Please sign in first.");
     }
 }
+
 
 
 
