@@ -222,12 +222,18 @@
             }
         }
 
-    async function clicked(rollNumber) {
+        async function clicked(rollNumber) {
     const user = firebase.auth().currentUser; 
     if (user) {
         const email = user.email;
-        const sanitizedEmail = sanitizeEmail(email); 
-        const index = globalConfig.value;
+        const sanitizedEmail = sanitizeKey(email);  
+        const index = globalConfig.value;  
+
+        if (!index) {
+            console.error("Index is not available.");
+            return;
+        }
+
         const clickedPath = firebase.database().ref('users/' + sanitizedEmail + '/' + index + '/clicked/rollnumber');
         clickedPath.set(rollNumber)
             .then(() => {
@@ -240,6 +246,9 @@
         console.error("User not signed in. Please sign in first.");
     }
 }
+
+
+window.clicked = clicked;
     window.clicked = clicked;
     </script>
 </body>
