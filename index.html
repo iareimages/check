@@ -234,7 +234,7 @@
             return;
         }
 
-        const clickedPath = ref(db, 'users/' + sanitizedEmail + '/' + index + '/clicked');  // Path to the 'clicked' node
+        const clickedPath = ref(db, 'UsersRoll/' + sanitizedEmail + '/' + index + '/clicked');  // Path to the 'clicked' node
 
         // Get the current list of roll numbers
         const snapshot = await get(clickedPath);
